@@ -1,44 +1,29 @@
 #!/usr/bin/python3
-"""Module for validUtf8 method"""
+"""
+UTF-8 Validation
+"""
 
 
 def validUTF8(data):
-    """Determines if given data represents valid UTF-8 encoding
-    Args:
-        data: list of integers
-    Returns:
-        True if valid UTF-8 encoding, otherwise False
     """
-    # Number of bytes in the current UTF-8 character
-    n_bytes = 0
+    data: a list of integers
+    Return: True if data is a valid UTF-8
+    encoding, else return False
+    """
+    byte_count = 0
 
-    # Mask to check if the most significant bit is set or not
-    mask1 = 1 << 7
-
-    # Mask to check if the second most significant bit is set or not
-    mask2 = 1 << 6
-    for num in data:
-
-        # Get the number of set most significant bits in the byte if
-        # this is the starting byte of an UTF-8 character.
-        mask = 1 << 7
-        if n_bytes == 0:
-            while mask & num:
-                n_bytes += 1
-                mask = mask >> 1
-
-            # 1 byte characters
-            if n_bytes == 0:
-                continue
-
-            # Invalid scenarios according to the rules of the problem.
-            if n_bytes == 1 or n_bytes > 4:
+    for i in data:
+        if byte_count == 0:
+            if i >> 5 == 0b110 or i >> 5 == 0b1110:
+                byte_count = 1
+            elif i >> 4 == 0b1110:
+                byte_count = 2
+            elif i >> 3 == 0b11110:
+                byte_count = 3
+            elif i >> 7 == 0b1:
                 return False
         else:
-            # If this byte is a part of an existing UTF-8 character, then we
-            # simply have to look at the two most significant bits and we make
-            # use of the masks we defined before.
-            if not (num & mask1 and not (num & mask2)):
+            if i >> 6 != 0b10:
                 return False
-        n_bytes -= 1
-    return n_bytes == 0
+            byte_count -= 1
+    return byte_count == 0
